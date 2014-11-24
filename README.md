@@ -4,8 +4,8 @@ ML_final
 CS 374T Final Project
 
 People:
-  Nile Livingston
-  Pamela Mishkin
+  Nile Livingston,
+  Pamela Mishkin,
   Lauren Yu
   
 Goal: Sentence classification task based on data at
