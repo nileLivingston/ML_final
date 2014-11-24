@@ -1,3 +1,10 @@
+% Featurization 2: Word list frequency counts
+% This featurization of the sentence data
+% poses an attribute for each wordlist.
+% The value of the attribute associated with wordlist
+% L for a sentence S equals the number of words in
+% L that appear in S (not counting duplicates).
+%
 @RELATION itdoesntmatter
 
 @ATTRIBUTE aim.txt INTEGER
