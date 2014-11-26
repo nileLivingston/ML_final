@@ -1,8 +1,8 @@
 import sys, os, re
 
-home_path = sys.argv[1]
-data_path = home_path + "/SentenceCorpus/labeled_articles/"
-word_lists_path = home_path + "SentenceCorpus/word_lists/"
+#home_path = sys.argv[1]
+#data_path = home_path + "/SentenceCorpus/labeled_articles/"
+#word_lists_path = home_path + "SentenceCorpus/word_lists/"
 
 # Input:
 # list - a list of numbers.
@@ -286,6 +286,31 @@ def featurization_4():
 		arff.write(line)
 	arff.close()
 
+import csv
+
+def featurization_5():
+	
+	# The attributes for the .arff file.
+	attributes = ['line_num', 'journal', 'expert', 'section', 'class', 'DT', 'NNP', 'NN', 'IN', 'VBZ', 'VBN', 'VBG', 'JJ', ',', 'RB', ':', 'CD', 'CC', 'PRP', 'MD', 'VB', 'NNS', 'WDT', 'VBP', 'JJR', 'TO', '``', "''", 'NNPS', 'PRP$', 'JJS', 'WRB', 'POS', 'VBD', 'EX', 'RBR', '-NONE-', 'LS', 'RBS', 'WP', 'RP', 'PDT', 'WP$', '#', '.']
+
+	f = open('pos_csv.txt','rb')
+	arff = open('featurization_5.arff','a')
+	arff.write("@RELATION featurization_5\n\n")
+	for a in attributes:
+		if a == "journal":
+			data_type = "{arxiv, jdm, plos}"
+		elif a == "section":
+			data_type = "{abstract, introduction}"		
+		elif a == "class":
+			data_type = "{AIM, BASE, CONT, OWN, MISC}"
+		else:
+			data_type = "INTEGER"
+		arff.write("@ATTRIBUTE " + a + " " + data_type + "\n")
+	
+	arff.write('\n@DATA\n')
+
+	for line in f:
+		arff.write(line)
 '''
 	MAIN
 '''
@@ -301,4 +326,4 @@ def featurization_4():
 # Done
 # featurization_3()
 
-featurization_4()
+featurization_5()
