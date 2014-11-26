@@ -291,22 +291,26 @@ import csv
 def featurization_5():
 	
 	# The attributes for the .arff file.
-	attributes = ['line_num', 'journal', 'expert', 'section', 'class', 'DT', 'NNP', 'NN', 'IN', 'VBZ', 'VBN', 'VBG', 'JJ', ',', 'RB', ':', 'CD', 'CC', 'PRP', 'MD', 'VB', 'NNS', 'WDT', 'VBP', 'JJR', 'TO', '``', "''", 'NNPS', 'PRP$', 'JJS', 'WRB', 'POS', 'VBD', 'EX', 'RBR', '-NONE-', 'LS', 'RBS', 'WP', 'RP', 'PDT', 'WP$', '#', '.']
+	attributes = ['line_num', 'journal', 'expert', 'section', 'DT', 'NNP', 'NN', 'IN', 'VBZ', 'VBN', 'VBG', 'JJ', ',', 'RB', ':', 'CD', 'CC', 'PRP', 'MD', 'VB', 'NNS', 'WDT', 'VBP', 'JJR', 'TO', '``', "''", 'NNPS', 'PRP$', 'JJS', 'WRB', 'POS', 'VBD', 'EX', 'RBR', '-NONE-', 'LS', 'RBS', 'WP', 'RP', 'PDT', 'WP$', '#', '.','class']
+	punc = {',':'comma', ':':'colon', '``':'opquote', "''":'closequote', '-NONE-':'none', 'WP$':'wpmoney', '#':'hashhash', '.':'periodperiod'}
 
-	f = open('pos_csv.txt','rb')
-	arff = open('featurization_5.arff','a')
+	f = open('pos_csv.csv','rb')
+	arff = open('featurization_5.arff','w')
 	arff.write("@RELATION featurization_5\n\n")
 	for a in attributes:
-		if a == "journal":
-			data_type = "{arxiv, jdm, plos}"
-		elif a == "section":
-			data_type = "{abstract, introduction}"		
-		elif a == "class":
-			data_type = "{AIM, BASE, CONT, OWN, MISC}"
+		if a in punc.keys():
+			arff.write("@ATTRIBUTE " + punc[a] + " " + "INTEGER" + "\n")
 		else:
-			data_type = "INTEGER"
-		arff.write("@ATTRIBUTE " + a + " " + data_type + "\n")
-	
+			if a == "journal":
+				data_type = "{arxiv, jdm, plos}"
+			elif a == "section":
+				data_type = "{abstract, introduction}"		
+			elif a == "class":
+				data_type = "{AIM, BASE, CONT, OWN, MISC}"
+			else:
+				data_type = "INTEGER"
+			arff.write("@ATTRIBUTE " + a.lower() + " " + data_type + "\n")
+
 	arff.write('\n@DATA\n')
 
 	for line in f:
