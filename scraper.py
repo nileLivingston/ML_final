@@ -68,7 +68,6 @@ def aggregateLabeled(directory):
 		agg.write('|'.join([str(li).strip('\n') for li in l])+"\n")
 	agg.close()
 
-
 def featurization_1():
 	
 	# The attributes for the .arff file.
@@ -226,6 +225,67 @@ def featurization_3():
 		arff.write(line)
 	arff.close()
 
+def featurization_4():
+	
+	# The attributes for the .arff file.
+	attributes = ["line_number", "num_words", "median_word_length", "mean_word_length","journal_name", "expert_annotator", "section_name"]
+
+	# Add a new boolean attribute for each word in the word lists.
+	target_words = []
+	for file in os.listdir(word_lists_path):
+		if file.endswith(".txt") and not file == "stopwords.txt":
+			f = open(word_lists_path + file)
+			for line in f:
+				new_word = line.strip('\n')
+				if not new_word in target_words:
+					target_words.append(new_word)
+			f.close()
+
+	target_words.append("CITATION")
+	target_words.append("NUMBER")
+	target_words.append("SYMBOL")
+	target_words.sort()
+
+	for word in target_words:
+		attributes.append(word)
+
+	f = open(home_path + "labeled_aggregate.txt", 'r')
+
+	# To hold the cases.
+	data = []
+	for line in f:	
+		line = line.strip('\n').split("|")
+		words = re.findall(r"[\w']+", line[0])
+		label = line[5]
+		
+		case = [line[1], len(words), median([len(word) for word in words]), sum([len(word) for word in words])/float(len(words)), line[2], line[3], line[4]]
+		for word in target_words:
+			case.append(int(word in words))
+		case.append(label)			
+		data.append(case)
+	f.close()
+
+	# Write the .arff file
+	arff = open('featurization_4.arff', 'a')
+	arff.write("@RELATION itdoesntmatter\n\n")
+	for a in attributes:
+		if a == "journal_name":
+			data_type = "{arxiv, jdm, plos}"
+		elif a == "section_name":
+			data_type = "{abstract, introduction}"		
+		elif a == "median_word_length" or a == "mean_word_length":
+			data_type = "REAL"
+		else:
+			data_type = "INTEGER"
+		arff.write("@ATTRIBUTE " + a + " " + data_type + "\n")
+	arff.write("@ATTRIBUTE class_label {AIM, BASE, CONT, OWN, MISC}\n")
+
+	arff.write("\n@DATA\n")
+	for d in data:
+		line = ",".join([str(di) for di in d]) + "\n"
+		arff.write(line)
+	arff.close()
+
 '''
 	MAIN
 '''
@@ -240,3 +300,5 @@ def featurization_3():
 
 # Done
 # featurization_3()
+
+featurization_4()
