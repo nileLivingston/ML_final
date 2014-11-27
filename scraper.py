@@ -168,7 +168,7 @@ def featurization_2():
 	arff.close()
 
 def featurization_3():
-	
+
 	# The attributes for the .arff file.
 	attributes = ["line_number", "num_words", "median_word_length", "mean_word_length","journal_name", "expert_annotator", "section_name"]
 
@@ -315,6 +315,81 @@ def featurization_5():
 
 	for line in f:
 		arff.write(line)
+
+def featurization_7():
+
+	import nltk
+	
+	word_lists_path = 'SentenceCorpus/word_lists/'
+	
+	# The attributes for the .arff file.
+	attributes = ["line_number", "num_words", "median_word_length", "mean_word_length","journal_name", "expert_annotator", "section_name"]
+	poses = ['DT', 'NNP', 'NN', 'IN', 'VBZ', 'VBN', 'VBG', 'JJ', ',', 'RB', ':', 'CD', 'CC', 'PRP', 'MD', 'VB', 'NNS', 'WDT', 'VBP', 'JJR', 'TO', '``', "''", 'NNPS', 'PRP$', 'JJS', 'WRB', 'POS', 'VBD', 'EX', 'RBR', '-NONE-', 'LS', 'RBS', 'WP', 'RP', 'PDT', 'WP$', '#', '.']
+	punc = {',':'comma', ':':'colon', '``':'opquote', "''":'closequote', '-NONE-':'none', 'WP$':'wpmoney', '#':'hashhash', '.':'periodperiod'}
+
+	# Add a new boolean attribute for each word in the word lists.
+	target_words = []
+	for file in os.listdir(word_lists_path):
+		if file.endswith(".txt") and not file == "stopwords.txt":
+			f = open(word_lists_path + file)
+			for line in f:
+				new_word = line.strip('\n')
+				if not new_word in target_words:
+					target_words.append(new_word)
+			f.close()
+
+	target_words.sort()
+
+	for word in target_words:
+		attributes.append(word)
+
+	f = open("labeled_aggregate.txt", 'r')
+
+	# To hold the cases.
+	data = []
+	for line in f:	
+		line = line.strip('\n').split("|")
+		words = re.findall(r"[\w']+", line[0])
+		label = line[5]
+		case = [line[1], len(words), median([len(word) for word in words]), sum([len(word) for word in words])/float(len(words)), line[2], line[3], line[4]]
+		for word in target_words:
+			case.append(int(word in words))
+		ppos = [i[1] for i in nltk.pos_tag(nltk.word_tokenize(line[0]))]
+		row = {i:0 for i in poses}
+		for k in ppos:
+			row[k]+=1
+		case+=[row[i] for i in poses]
+		case.append(label)			
+		data.append(case)
+	f.close()
+
+	attributes += punc
+
+	print attributes
+
+	# Write the .arff file
+	arff = open('featurization_7.arff', 'a')
+	arff.write("@RELATION featurization_7\n\n")
+	for a in attributes:
+		if a in punc:
+			arff.write("@ATTRIBUTE " + punc[a] + " " + "INTEGER" + "\n")
+		else:
+			if a == "journal_name":
+				data_type = "{arxiv, jdm, plos}"
+			elif a == "section_name":
+				data_type = "{abstract, introduction}"		
+			elif a == "median_word_length" or a == "mean_word_length":
+				data_type = "REAL"
+			else:
+				data_type = "INTEGER"
+			arff.write("@ATTRIBUTE " + a + " " + data_type + "\n")
+	arff.write("@ATTRIBUTE class_label {AIM, BASE, CONT, OWN, MISC}\n")
+
+	arff.write("\n@DATA\n")
+	for d in data:
+		line = ",".join([str(di) for di in d]) + "\n"
+		arff.write(line)
+	arff.close()
 '''
 	MAIN
 '''
@@ -330,4 +405,4 @@ def featurization_5():
 # Done
 # featurization_3()
 
-featurization_5()
+featurization_7()
