@@ -391,6 +391,49 @@ def featurization_8():
 		line = ",".join([str(di) for di in d]) + "\n"
 		arff.write(line)
 	arff.close()
+
+def featurization_8():
+	from nltk.stem.lancaster import LancasterStemmer
+	st = LancasterStemmer()
+	stopwords = ["of","a","and","the","in","to","for","that","is","on","are","with","as","by","be","an","which","it","from","or","can","have","these","has","such"] # taken from the provided txt file
+
+	f = open("labeled_aggregate.txt")
+	wordlist = []
+
+	data = []
+	for line in f:	
+		line = line.strip('\n').split("|")
+		words = re.findall(r"[\w']+", line[0])
+		label = line[5]
+
+		case = []
+		for word in words:
+			if word not in stopwords:
+				if word.isalpha():
+					word = word.lower()
+					if len(word) > 3:
+						word = st.stem(word)
+					case.append(word)
+					if word not in wordlist:
+						wordlist.append(word)
+		case.append(label)			
+		data.append(case)
+	f.close()
+	wordlist.sort()
+	
+	# Write the .arff file
+	arff = open('featurization_8.arff', 'a')
+	arff.write("@RELATION featurization_8\n\n")
+	for a in wordlist:
+		arff.write("@ATTRIBUTE " + a + " " + "INTEGER" + "\n")
+	arff.write("@ATTRIBUTE class_label {AIM, BASE, CONT, OWN, MISC}\n")
+
+	arff.write("\n@DATA\n")
+	for d in data:
+		for a in wordlist:
+			arff.write(str(int(a in d[:-1]))+",")
+		arff.write(d[-1]+"\n")
+	arff.close()
 '''
 	MAIN
 '''
@@ -406,4 +449,7 @@ def featurization_8():
 # Done
 # featurization_3()
 
-featurization_7()
+# Done
+#featurization_7()
+
+featurization_8()
