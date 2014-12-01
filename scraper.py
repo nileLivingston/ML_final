@@ -316,7 +316,7 @@ def featurization_5():
 	for line in f:
 		arff.write(line)
 
-def featurization_7():
+def featurization_8():
 
 	import nltk
 	
@@ -357,7 +357,10 @@ def featurization_7():
 		ppos = [i[1] for i in nltk.pos_tag(nltk.word_tokenize(line[0]))]
 		row = {i:0 for i in poses}
 		for k in ppos:
-			row[k]+=1
+			if k not in punc.keys():
+				row[k]+=1
+			
+
 		case+=[row[i] for i in poses]
 		case.append(label)			
 		data.append(case)
@@ -368,12 +371,10 @@ def featurization_7():
 	print attributes
 
 	# Write the .arff file
-	arff = open('featurization_7.arff', 'a')
+	arff = open('featurization_8.arff', 'a')
 	arff.write("@RELATION featurization_7\n\n")
 	for a in attributes:
-		if a in punc:
-			arff.write("@ATTRIBUTE " + punc[a] + " " + "INTEGER" + "\n")
-		else:
+		if a not in punc:
 			if a == "journal_name":
 				data_type = "{arxiv, jdm, plos}"
 			elif a == "section_name":
